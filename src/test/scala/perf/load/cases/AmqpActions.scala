@@ -1,0 +1,14 @@
+package perf.load.cases
+
+import io.gatling.core.Predef._
+import org.galaxio.gatling.amqp.Predef._
+import org.galaxio.gatling.amqp.request._
+
+object AmqpActions {
+
+  val publishMessage: PublishDslBuilder = amqp("Publish").publish
+    .queueExchange("my_queue")
+    .textMessage("Hello message")
+    .messageId("1")
+    .priority(0)
+}

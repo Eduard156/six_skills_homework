@@ -1,0 +1,11 @@
+package perf.load.cases
+
+import io.gatling.core.Predef._
+import org.galaxio.gatling.kafka.Predef._
+import org.galaxio.gatling.kafka.request.builder._
+
+object KafkaActions {
+
+  val sendMessage: RequestBuilder[String, String] = kafka("my message")
+    .send[String, String]("myMessage", "Hello!")
+}

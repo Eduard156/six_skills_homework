@@ -1,0 +1,17 @@
+package perf.load.scenarios
+
+import io.gatling.core.Predef._
+import io.gatling.core.structure.ScenarioBuilder
+import org.galaxio.gatling.jdbc.Predef._
+import perf.load.cases._
+
+object JdbcScenario {
+  def apply(): ScenarioBuilder = new JdbcScenario().scn
+}
+
+class JdbcScenario {
+
+  val scn: ScenarioBuilder = scenario("Jdbc Scenario")
+    .exec(JdbcActions.createTable)
+
+}
