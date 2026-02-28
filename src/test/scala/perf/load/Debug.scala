@@ -13,6 +13,7 @@ class Debug extends Simulation {
   ).assertions(
     global.responseTime.mean.lt(500),        // среднее < 500 мс
     global.successfulRequests.percent.gt(99), // успешных > 99 %
+    global.failedRequests.percent.lt(1)
   ).maxDuration(testDuration)
 
 }
