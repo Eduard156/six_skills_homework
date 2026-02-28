@@ -12,5 +12,6 @@ class HttpSherlockScenario {
 
   val scn: ScenarioBuilder = scenario("Http Sherlock Scenario")
     .exec(HttpSherlock.postToken)
+    .exec(HttpSherlock.getProfile)
 
 }

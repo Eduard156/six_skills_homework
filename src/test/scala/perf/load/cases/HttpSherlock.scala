@@ -14,10 +14,23 @@ object HttpSherlock {
             "username": "sherlock",
             "password": "password1"
           }
-        """,
-      ),
+        """
+      )
     )
     .asJson
-    .check(status is 200)
+    .check(
+      status is 200,
+      jsonPath("$.user_id").saveAs("userId"),
+      jsonPath("$.access").saveAs("access")
+    )
+
+  val getProfile = http("GET /profile/#{userId}")
+    .get("/profile/#{userId}/")
+    .header("Authorization", s"Bearer #{access}")
+    .check(
+      status is 200,
+      jsonPath("$.flag").isNull,
+      jsonPath("$.is_privileged").is("false"),
+    )
 
 }

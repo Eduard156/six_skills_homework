@@ -29,7 +29,7 @@ package object load {
     .contentTypeHeader("application/json")
 //    .header("x-api-key", apiKey)
     .acceptHeader(
-      "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8;application/json",
+      "application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8;",
     ) // Here are the common headers
     .acceptEncodingHeader("gzip, deflate")
     .acceptLanguageHeader("en-US,en;q=0.5")
