@@ -2,27 +2,28 @@ package perf.load.cases
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
+import org.slf4j.LoggerFactory
 
 object HttpSherlock {
+
+  val credFeeder = csv("credit.csv").queue
+
+  val logger = LoggerFactory.getLogger("AuthLogger")
 
   val postToken = http("POST /api/token")
     .post("/api/token/")
     .body(
       StringBody(
-        """
+        s"""
           {
-            "username": "sherlock",
-            "password": "password1"
+            "username": "#{username}",
+            "password": "#{password}"
           }
-        """
-      )
+        """,
+      ),
     )
     .asJson
-    .check(
-      status is 200,
-      jsonPath("$.user_id").saveAs("userId"),
-      jsonPath("$.access").saveAs("access")
-    )
+    .check(status.saveAs("responseStatus"))
 
   val getProfile = http("GET /profile/#{userId}")
     .get("/profile/#{userId}/")

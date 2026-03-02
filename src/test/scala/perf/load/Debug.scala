@@ -7,13 +7,14 @@ import perf.load.scenarios._
 class Debug extends Simulation {
 
   setUp(
-    HttpPetStoreScenario().inject(atOnceUsers(10)),
+    HttpSherlockScenario()
+      .inject(
+        atOnceUsers(4),
+      ),
   ).protocols(
     httpProtocol,
-  ).assertions(
-//    global.responseTime.mean.lt(500),        // среднее < 500 мс
-//    global.successfulRequests.percent.gt(99), // успешных > 99 %
-//    global.failedRequests.percent.lt(1)
-  ).maxDuration(testDuration)
+  ).maxDuration(
+    testDuration,
+  )
 
 }
