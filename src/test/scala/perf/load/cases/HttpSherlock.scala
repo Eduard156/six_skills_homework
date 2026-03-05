@@ -1,31 +1,34 @@
 package perf.load.cases
 
 import io.gatling.core.Predef._
+import io.gatling.core.feeder.BatchableFeederBuilder
 import io.gatling.http.Predef._
-import org.slf4j.LoggerFactory
+import io.gatling.http.request.builder.HttpRequestBuilder
+import org.slf4j.{Logger, LoggerFactory}
+import perf.load.models.AuthRequest
+import perf.load.utils.GsonUtils
 
 object HttpSherlock {
 
-  val credFeeder = csv("credit.csv").queue
+  val credFeeder: BatchableFeederBuilder[String] = csv("credit.csv").queue
 
-  val logger = LoggerFactory.getLogger("AuthLogger")
+  val logger: Logger = LoggerFactory.getLogger("AuthLogger")
 
-  val postToken = http("POST /api/token")
+  val postToken: HttpRequestBuilder = http("POST /api/token")
     .post("/api/token/")
     .body(
-      StringBody(
-        s"""
-          {
-            "username": "#{username}",
-            "password": "#{password}"
-          }
-        """,
+      StringBody(session =>
+        GsonUtils.toJson(
+          AuthRequest(
+            username = session("username").as[String],
+            password = session("password").as[String],
+          ),
+        ),
       ),
     )
-    .asJson
     .check(status.saveAs("responseStatus"))
 
-  val getProfile = http("GET /profile/#{userId}")
+  val getProfile: HttpRequestBuilder = http("GET /profile/#{userId}")
     .get("/profile/#{userId}/")
     .header("Authorization", s"Bearer #{access}")
     .check(
