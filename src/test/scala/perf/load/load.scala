@@ -27,7 +27,7 @@ package object load {
       baseUrl,
     )
     .contentTypeHeader("application/json")
-//    .header("x-api-key", apiKey)
+    .header("x-api-key", apiKey)
     .acceptHeader(
       "application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8;",
     ) // Here are the common headers

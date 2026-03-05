@@ -15,4 +15,5 @@ object Dependencies {
   lazy val jdbcPlugin: Seq[ModuleID]       = Seq("org.galaxio" %% "gatling-jdbc-plugin" % "0.14.2")
   lazy val postgresJdbc: Seq[ModuleID]     = Seq("org.postgresql" % "postgresql" % "42.7.10")
   lazy val gson: Seq[ModuleID]             = Seq("com.google.code.gson" % "gson" % "2.13.2")
+  lazy val javaFaker: Seq[ModuleID]        = Seq("com.github.javafaker" % "javafaker" % "1.0.2" exclude("org.yaml", "snakeyaml"))
 }
