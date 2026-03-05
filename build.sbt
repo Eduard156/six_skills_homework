@@ -23,7 +23,8 @@ lazy val root = (project in file("."))
     libraryDependencies ++= jdbcPlugin,
     libraryDependencies ++= postgresJdbc,
     libraryDependencies ++= gson,
-    scalacOptions ++= Seq(
+    libraryDependencies ++= javaFaker,
+      scalacOptions ++= Seq(
       "-encoding",
       "UTF-8",
       "-Xfatal-warnings",

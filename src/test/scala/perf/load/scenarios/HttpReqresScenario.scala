@@ -11,6 +11,7 @@ object HttpReqresScenario {
 class HttpReqresScenario {
 
   val scn: ScenarioBuilder = scenario("Http Reqres Scenario")
+    .exec(HttpReqres.saveRandomUserData)
     .exec(HttpReqres.postCreate)
     .exec(HttpReqres.getSingleUser)
 
