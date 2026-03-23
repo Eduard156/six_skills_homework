@@ -7,9 +7,9 @@ import perf.load.scenarios._
 class Debug extends Simulation {
 
   setUp(
-    HttpSherlockScenario()
+    HttpReqresScenario()
       .inject(
-        atOnceUsers(4),
+        atOnceUsers(1),
       ),
   ).protocols(
     httpProtocol,
