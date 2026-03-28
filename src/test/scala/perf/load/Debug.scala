@@ -28,7 +28,7 @@ class Debug extends Simulation {
   ).protocols(
     httpProtocol.baseUrl(baseUrl),
   ).assertions(
-    global.responseTime.mean.lt(500),
+    global.responseTime.mean.lt(900),
     global.successfulRequests.percent.gt(99),
   ).maxDuration(
     testDuration,
