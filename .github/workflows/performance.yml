@@ -1,0 +1,47 @@
+name: Performance Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  gatling-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache SBT dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+            ~/.coursier
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+          restore-keys: |
+            ${{ runner.os }}-sbt-
+
+      - name: Run BasicSimulation
+        run: sbt "gatling:testOnly simulations.BasicSimulation"
+
+      - name: Run Debug simulation
+        run: sbt "Gatling / testOnly perf.load.Debug"
+
+      - name: Archive Gatling reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gatling-reports
+          path: target/gatling/
+          retention-days: 7
