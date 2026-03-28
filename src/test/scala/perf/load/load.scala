@@ -1,5 +1,6 @@
 package perf
 
+import config.Config.configStand
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -19,7 +20,7 @@ package object load {
   if (sys.env.get("DEBUG").exists(_.equalsIgnoreCase("true")))
     debugMemoryAndOpts()
 
-  val apiKey = sys.env.getOrElse("X_API_KEY", throw new RuntimeException("X_API_KEY not set"))
+//  val apiKey = sys.env.getOrElse("X_API_KEY", throw new RuntimeException("X_API_KEY not set"))
 
   // common http protocol params (eg headers, checks)
   val httpProtocol = http
@@ -27,7 +28,7 @@ package object load {
       baseUrl,
     )
     .contentTypeHeader("application/json")
-    .header("x-api-key", apiKey)
+//    .header("x-api-key", apiKey)
     .acceptHeader(
       "application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8;",
     ) // Here are the common headers
