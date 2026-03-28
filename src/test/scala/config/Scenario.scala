@@ -8,6 +8,7 @@ object Scenario {
   def scn(x: String): ScenarioBuilder = x match {
     case "reqres" => HttpReqresScenario()
     case "smoke"  => HttpReqres2Scenario()
+    case "sherlock" => HttpSherlockScenario()
     case _        => HttpReqresScenario()
 
   }

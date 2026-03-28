@@ -1,6 +1,5 @@
 package perf
 
-import config.Config.configStand
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -24,9 +23,9 @@ package object load {
 
   // common http protocol params (eg headers, checks)
   val httpProtocol = http
-    .baseUrl(
+    /*.baseUrl(
       baseUrl,
-    )
+    )*/
     .contentTypeHeader("application/json")
 //    .header("x-api-key", apiKey)
     .acceptHeader(

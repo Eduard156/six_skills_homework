@@ -6,10 +6,36 @@ on:
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Scenario (e.g., sherlock)'
+        required: false
+        default: 'sherlock'
+      standName:
+        description: 'Stand name (e.g., "")'
+        required: false
+        default: ''
+      simulation:
+        description: 'Simulation class name (e.g., Debug)'
+        required: false
+        default: 'Debug'
+
+env:
+  JAVA_VERSION: "graalvm-ce-21.3.0-java17"
+  SBT_VERSION: "1.6.2"
+  SCALA_VERSION: "2.13.8"
+
+  ORGANISATION: "perf"
+  SERVICE_NAME: "load"
 
 jobs:
-  gatling-tests:
+  gatling-test:
     runs-on: ubuntu-latest
+
+    env:
+      SBT_IVY_HOME: ${{ github.workspace }}/.ivy2
+      COURSIER_CACHE: ${{ github.workspace }}/.coursier
+      SBT_GLOBAL_BASE: ${{ github.workspace }}/.sbt
 
     steps:
       - name: Checkout code
@@ -28,18 +54,25 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ~/.ivy2/cache
-            ~/.sbt
-            ~/.coursier
+            ${{ github.workspace }}/.ivy2/cache
+            ${{ github.workspace }}/.sbt
+            ${{ github.workspace }}/.coursier
           key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
           restore-keys: |
             ${{ runner.os }}-sbt-
 
-      - name: Run BasicSimulation
-        run: sbt "gatling:testOnly simulations.BasicSimulation"
+      - name: Clean and compile
+        run: sbt clean compile
 
-      - name: Run Debug simulation
-        run: sbt "Gatling / testOnly perf.load.Debug"
+      - name: Run Gatling simulation
+        run: |
+          SCENARIO_VALUE="${{ github.event.inputs.scenario || 'sherlock' }}"
+          STAND_NAME_VALUE="${{ github.event.inputs.standName || '' }}"
+          SIMULATION_VALUE="${{ github.event.inputs.simulation || 'Debug' }}"
+
+          echo "Running simulation $ORGANISATION.$SIMULATION_VALUE with scenario $SCENARIO_VALUE on stand $STAND_NAME_VALUE"
+          sbt -Dscenario=$SCENARIO_VALUE -DstandName=$STAND_NAME_VALUE \
+            "Gatling / testOnly $ORGANISATION.$SERVICE_NAME.$SIMULATION_VALUE"
 
       - name: Archive Gatling reports
         uses: actions/upload-artifact@v4

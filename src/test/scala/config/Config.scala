@@ -35,8 +35,14 @@ object Config {
           scenario = scenarioName,
         )
 
+      case "" =>
+        RunConfig(
+          baseUrl = getStringParam("baseUrl"),
+          scenario = scenarioName,
+        )
+
       case other =>
-        throw new IllegalArgumentException(s"Unknown stand: $other. Supported stands: 'test', 'dev'")
+        throw new IllegalArgumentException(s"Unknown stand: $other.")
 
     }
   }
