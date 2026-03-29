@@ -1,0 +1,109 @@
+name: Performance Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Scenario (e.g., sherlock)'
+        required: false
+        default: 'sherlock'
+      standName:
+        description: 'Stand name (e.g., "")'
+        required: false
+        default: ''
+      simulation:
+        description: 'Simulation class name (e.g., Debug)'
+        required: false
+        default: 'Debug'
+
+env:
+  JAVA_VERSION: "graalvm-ce-21.3.0-java17"
+  SBT_VERSION: "1.6.2"
+  SCALA_VERSION: "2.13.8"
+
+  ORGANISATION: "perf"
+  SERVICE_NAME: "load"
+
+jobs:
+  gatling-test:
+    runs-on: ubuntu-latest
+
+    env:
+      SBT_IVY_HOME: ${{ github.workspace }}/.ivy2
+      COURSIER_CACHE: ${{ github.workspace }}/.coursier
+      SBT_GLOBAL_BASE: ${{ github.workspace }}/.sbt
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup SBT
+        uses: sbt/setup-sbt@v1
+
+      - name: Cache SBT dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/.ivy2/cache
+            ${{ github.workspace }}/.sbt
+            ${{ github.workspace }}/.coursier
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+          restore-keys: |
+            ${{ runner.os }}-sbt-
+
+      - name: Clean and compile
+        run: sbt clean compile
+
+      - name: Run Gatling simulation
+        run: |
+          SCENARIO_VALUE="${{ github.event.inputs.scenario || 'sherlock' }}"
+          STAND_NAME_VALUE="${{ github.event.inputs.standName || '' }}"
+          SIMULATION_VALUE="${{ github.event.inputs.simulation || 'Debug' }}"
+
+          echo "Running simulation $ORGANISATION.$SIMULATION_VALUE with scenario $SCENARIO_VALUE on stand $STAND_NAME_VALUE"
+          sbt -Dscenario=$SCENARIO_VALUE -DstandName=$STAND_NAME_VALUE \
+            "Gatling / testOnly $ORGANISATION.$SERVICE_NAME.$SIMULATION_VALUE"
+
+      - name: Archive Gatling reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gatling-reports
+          path: target/gatling/
+          retention-days: 7
+
+  send-gatling-report:
+    runs-on: ubuntu-latest
+    needs: gatling-test
+    if: always()
+    steps:
+      - name: Download Gatling reports
+        uses: actions/download-artifact@v4
+        with:
+          name: gatling-reports
+          path: target/gatling/
+
+      - name: Find index.html and send to Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          REPORT_PATH=$(find target/gatling -name index.html | tail -1)
+          if [ -z "$REPORT_PATH" ]; then
+            echo "No index.html found, skipping Telegram send."
+            exit 0
+          fi
+          echo "Sending report: $REPORT_PATH"
+          curl -F chat_id=${TELEGRAM_CHAT_ID} \
+               -F document=@$REPORT_PATH \
+               https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendDocument

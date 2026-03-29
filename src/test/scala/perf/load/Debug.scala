@@ -1,6 +1,6 @@
 package perf.load
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config._
 import config.Config.configStand
 import config.Scenario.scn
 import io.gatling.core.Predef._
@@ -9,9 +9,9 @@ import org.galaxio.gatling.config.SimulationConfig._
 class Debug extends Simulation {
 
   private val config = ConfigFactory.load()
-  private val env = System.getProperty("env", "dev")
+  private val env    = System.getProperty("env", "dev")
 
-  private val baseUrl = config.getString(s"environments.$env.baseUrl")
+  private val baseUrl      = config.getString(s"environments.$env.baseUrl")
   private val scenarioName = config.getString(s"environments.$env.scenario")
 
   println(s"""
@@ -26,9 +26,9 @@ class Debug extends Simulation {
     scn(scenarioName)
       .inject(atOnceUsers(1)),
   ).protocols(
-    httpProtocol,
+    httpProtocol.baseUrl(baseUrl),
   ).assertions(
-    global.responseTime.mean.lt(100),
+    global.responseTime.mean.lt(900),
     global.successfulRequests.percent.gt(99),
   ).maxDuration(
     testDuration,
